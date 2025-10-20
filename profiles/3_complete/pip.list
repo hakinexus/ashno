@@ -1,0 +1,29 @@
+# ===============================================================
+# Ashno Profile 3: PIP Complete
+# Expert libraries for Cloud, AI/ML, and advanced data processing.
+# ===============================================================
+
+# --- Major Cloud Provider SDKs ---
+# The official Software Development Kits for interacting with cloud services
+boto3                 # Amazon Web Services (AWS)
+google-cloud-storage  # Google Cloud Platform (GCP)
+azure-storage-blob    # Microsoft Azure
+
+
+# --- Big Data & Distributed Computing ---
+# A client for Apache Spark to perform large-scale data processing
+pyspark
+
+# --- Reverse Engineering & Malware Analysis ---
+# Python libraries for deep binary analysis and executable parsing
+capstone
+pyelftools
+pefile
+
+# --- Symbolic Mathematics ---
+# A full-featured computer algebra system (CAS) for symbolic computation
+sympy
+
+# --- Bioinformatics ---
+# The primary toolkit for computational biology and bioinformatics
+biopython

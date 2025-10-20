@@ -1,0 +1,25 @@
+# ==============================================================
+# Ashno Profile 3: NPM Complete
+# Specialist tools for Web3, IaC, and advanced automation.
+# ==============================================================
+
+# --- Blockchain & Web3 Development ---
+# Frameworks for developing, testing, and deploying smart contracts
+truffle
+hardhat
+ganache-cli
+# --- Infrastructure as Code (IaC) & Cloud ---
+# CLIs for defining and deploying cloud infrastructure with code
+cdk # AWS Cloud Development Kit
+@google-cloud/gac-tools # Google Cloud
+
+# --- Mobile App Development ---
+# Frameworks for building cross-platform mobile applications with web tech
+cordova
+@ionic/cli
+
+# --- Documentation & API Generation ---
+# Tools for automatically generating project documentation and GraphQL APIs
+jsdoc
+typedoc
+@graphql-cli/cli

@@ -1,0 +1,31 @@
+
+# ================================================================
+# Ashno Profile 2: NPM Extended
+# Advanced tooling for modern development workflows and automation.
+# ================================================================
+
+# --- Testing Frameworks ---
+# Industry-standard tools for testing JavaScript applications
+jest
+mocha
+chai
+# --- Static Site Generators & Headless CMS ---
+# CLIs for building extremely fast, modern websites
+gatsby-cli
+@11ty/eleventy
+
+# --- API & Backend Development ---
+# Tools for mocking APIs and building with modern backend frameworks
+json-server
+@nestjs/cli
+
+# --- Linting & Code Quality (Advanced) ---
+# Plugins and tools for maintaining high-quality codebases
+eslint-plugin-import
+eslint-plugin-promise
+npm-check-updates
+
+# --- Cloud & DevOps ---
+# Command-line interfaces for serverless platforms
+serverless
+wrangler

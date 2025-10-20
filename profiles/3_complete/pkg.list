@@ -1,0 +1,42 @@
+# =================================================================
+# Ashno Profile 3: PKG Complete
+# Expert-level tools for reverse engineering, forensics, and more.
+# =================================================================
+
+# --- Advanced Debugging & System Analysis ---
+# Tools for in-depth program analysis and system call tracing
+gdb
+strace
+ltrace
+
+# --- Reverse Engineering & Forensics ---
+# A suite for binary analysis, firmware extraction, and file carving
+binwalk
+sleuthkit
+radare2
+yara
+
+# --- Cryptography & Password Auditing ---
+# Professional tools for encryption and password recovery
+gnupg
+john
+steghide
+hash-identifier
+
+# --- Software Defined Radio (SDR) & Wireless ---
+# Tools for interacting with SDR hardware for wireless analysis
+rtl-sdr
+sox
+
+
+# --- Niche & Systems Programming Languages ---
+# Compilers and runtimes for powerful, high-performance languages
+rust
+erlang
+lua
+ocaml
+
+# --- Miscellaneous Power-User Tools ---
+# A version manager for multiple languages and a GPS utility
+asdf
+gpsd

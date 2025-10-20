@@ -1,0 +1,34 @@
+# ====================================================================
+# Ashno Profile 1: NPM Essentials
+# ====================================================================
+
+# --- Core Tooling & Process Management ---
+# Essential package managers and server process managers
+yarn
+pm2
+nodemon
+
+# --- Development Servers ---
+# Simple, zero-configuration servers for local development
+http-server
+live-server
+
+# --- JavaScript Development & Bundling ---
+# Linters, formatters, and compilers for modern JS projects
+webpack
+typescript
+eslint
+prettier
+
+# --- Major Web Framework CLIs ---
+# Command-line interfaces for popular front-end frameworks
+@angular/cli
+vue-cli
+# 'create-react-app' is typically run via 'npx', not global install
+
+# --- Common Libraries (for global utility if needed) ---
+# Note: These are often project dependencies, but can be installed globally.
+axios
+express
+lodash
+react

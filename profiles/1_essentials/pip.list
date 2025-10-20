@@ -1,0 +1,49 @@
+# ================================================================
+# Ashno Profile 1: PIP Essentials
+# A comprehensive library for Python data science and development.
+# ================================================================
+
+# --- Python Environment Management ---
+# Best practice tools for managing project dependencies
+virtualenv
+
+# --- Web & API Interaction ---
+# The gold standards for web requests and scraping
+requests
+beautifulsoup4
+lxml
+scrapy
+
+# --- Data Science & Scientific Computing ---
+# Powerful libraries for data analysis, manipulation, and machine learning
+# Note: numpy & matplotlib are installed via PKG for stability in Termux.
+pandas
+scipy
+scikit-learn
+seaborn
+
+# --- Web Development Frameworks ---
+# A selection of popular frameworks for building web apps and APIs
+django
+flask
+fastapi
+
+# --- Database & ORMs ---
+# The leading SQL toolkit for Python
+sqlalchemy
+
+# --- Code Quality & Linting ---
+# Tools to enforce style guides and find errors
+pylint
+autopep8
+
+# --- Automation & System Management ---
+# Industry-standard automation engine
+ansible
+
+# --- Utilities & Miscellaneous ---
+# The modern and maintained tool for downloading web videos
+yt-dlp
+
+# An interactive computing environment
+jupyter

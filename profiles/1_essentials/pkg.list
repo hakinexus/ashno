@@ -1,0 +1,73 @@
+# ================================================================
+# Ashno Profile 1: PKG Essentials
+# ================================================================
+
+# --- Core System & Shell Utilities ---
+# Foundational tools for shell interaction and file operations
+coreutils
+util-linux
+termux-tools
+binutils
+findutils
+grep
+sed
+gawk
+less
+man
+zsh
+fish
+htop
+tmux
+neofetch
+
+# --- File Management & Archives ---
+# Tools for creating and extracting compressed files
+unzip
+tar
+zip
+
+# --- Development Languages & Compilers ---
+# A comprehensive suite of compilers and language runtimes
+git
+build-essential
+clang
+cmake
+python
+python2
+nodejs-lts
+openjdk-17
+golang
+ruby
+perl
+php
+
+# --- Python Native Extensions (for performance & compatibility) ---
+# Critical data science packages compiled natively for Termux
+python-numpy
+matplotlib
+
+# --- Networking & Internet ---
+# A full set of tools for network diagnostics, connections, and downloads
+openssh
+curl
+wget
+nmap
+net-tools
+inetutils
+tcpdump
+whois
+dnsutils
+
+# --- Text Editors ---
+# A wide selection of popular command-line editors
+nano
+vim
+neovim
+emacs
+micro
+
+# --- Advanced System Tools ---
+# Utilities for emulating root and interacting with Android OS
+proot
+tsu
+termux-api

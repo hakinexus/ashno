@@ -1,0 +1,36 @@
+# ===================================================================
+# Ashno Profile 2: PIP Extended
+# Advanced libraries for AI, async programming, and Python tooling.
+# =================================================================
+# --- Asynchronous Web & API ---
+# High-performance libraries for building and interacting with async services
+httpx
+aiohttp
+websockets
+uvicorn
+gunicorn
+
+# --- Modern Development & Package Management ---
+# The modern, recommended way to manage Python project dependencies
+poetry
+
+# --- API & Data Validation ---
+# Tools for building robust, self-documenting APIs
+pydantic
+python-multipart
+
+# --- Advanced Utilities & CLIs ---
+# Libraries for creating powerful CLIs, processing data, and more
+typer
+click
+tqdm
+Pillow
+
+# --- Security & Network Analysis ---
+# Powerful libraries for packet crafting and cryptographic functions
+scapy
+pycryptodome
+
+# --- Upgraded Interactive Environment ---
+# The next-generation user interface for Jupyter
+jupyterlab
