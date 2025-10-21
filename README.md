@@ -1,29 +1,31 @@
 <div align="center">
-  <br />
+  <br/>
   <pre>
   
-    █████╗ ██╗  ██╗██╗  ██╗ ██████╗ ██╗
-   ██╔══██╗██║  ██║██║  ██║██╔═══██╗██║
-   ███████║███████║███████║██║   ██║██║
-   ██╔══██║██╔══██║██╔══██║██║   ██║██║
-   ██║  ██║██║  ██║██║  ██║╚██████╔╝███████╗
-   ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝  ╚═╝ ╚═════╝ ╚══════╝
-  
+ █████╗  ██████╗ ██╗  ██╗███╗   ██╗ ██████╗ 
+██╔══██╗██╔═══██╗██║  ██║████╗  ██║██╔═══██╗
+███████║╚██████╗ ███████║██╔██╗ ██║██║   ██║
+██╔══██║██╔═══██╗██╔══██║██║╚██╗██║██║   ██║
+██║  ██║██████╔╝██║  ██║██║ ╚████║╚██████╔╝
+╚═╝  ╚═╝╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═══╝ ╚═════╝ 
+                                          
   </pre>
-  <br />
+  <br/>
   <p>
     <strong>The Definitive, Professional Toolkit Installer for Termux</strong>
   </p>
-  <br />
+  <br/>
     <p>
-    <img alt="Version" src="https://img.shields.io/badge/version-1.0.0-blue?style=for-the-badge">
-    <img alt="Platform" src="https://img.shields.io/badge/platform-Termux-brightgreen?style=for-the-badge">
+    <img alt="Version" src="https://img.shields.io/badge/version-1.0.0-blue?style=for-the-badge&logo=github">
+    <img alt="Platform" src="https://img.shields.io/badge/platform-Termux-brightgreen?style=for-the-badge&logo=android">
     <img alt="License" src="https://img.shields.io/badge/license-MIT-purple?style=for-the-badge">
     <br>
     <img alt="Maintained" src="https://img.shields.io/badge/maintained%3F-yes-cyan.svg?style=for-the-badge">
     <img alt="Contributions" src="https://img.shields.io/badge/contributions-welcome-orange.svg?style=for-the-badge">
   </p>
-  <br />
+  <br/>
+</div>
+  <br/>
 </div>
 
 **Ashno** is a state-of-the-art, framework-level tool designed to streamline and professionalize the setup of your Termux environment. It moves beyond simple scripts into a declarative, profile-driven system, allowing you to define, install, and manage complex toolkits with unparalleled ease and precision.
