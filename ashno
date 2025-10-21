@@ -3,10 +3,10 @@
 #
 # Ashno: The Professional Termux Toolkit Installer
 #
-# Version:      14.0 (Flawless UI & Definitive)
+# Version:      15.0 (Refactored & Definitive)
 # Author:       hakinexus
 # Description:  The definitive, state-of-the-art installer framework with
-#               a meticulously corrected, flawless, and professional UI.
+#               a professionally refactored, flawless UI and installation engine.
 #
 # ==============================================================================
 
@@ -78,24 +78,50 @@ handle_updates() {
 }
 
 # ==============================================================================
-# SECTION: INSTALLATION ENGINE
+# SECTION: INSTALLATION ENGINE (REFACTORED)
 # ==============================================================================
 spinner() { tput civis; local pid=$1; local str='⣾⣽⣻⢿⡿⣟⣯⣷'; while ps -p "$pid" > /dev/null; do printf "${PURPLE}%s${NC}" "${str:0:1}"; str=${str:1}${str:0:1}; sleep 0.08; printf "\b"; done; printf " "; tput cnorm; }
 pre_flight_checks() { print_banner "Performing System Checks"; if ! ping -c 1 8.8.8.8 &>/dev/null; then echo -e "${RED}Error: No internet.${NC}"; exit 1; fi; echo -e " ${GREEN}✔${NC} Internet Connection: OK"; if (( $(df -k . | awk 'NR==2{print $4}') < 1572864 )); then echo -e "${RED}Error: Insufficient storage.${NC}"; exit 1; fi; echo -e " ${GREEN}✔${NC} Available Storage:   OK"; }
 update_termux() { print_banner "Updating Termux Base System"; (pkg update -y && pkg upgrade -y) &>/dev/null & local pid=$!; echo -en "  Updating sources and packages... "; spinner $pid; wait $pid; printf "\r\033[K"; echo -e " ${GREEN}✔${NC} Base system update complete.";}
-install_packages() {
-    local pkg_type="$1"; local type_name="$2"; print_banner "Installing ${type_name} Packages"; local CMD_CHECK; local INSTALL_CMD;
-    case "$pkg_type" in
-        pkg) CMD_CHECK="dpkg -s"; INSTALL_CMD="pkg install -y" ;;
-        npm) if ! command -v npm &>/dev/null; then echo -e "${YELLOW}Notification:${NC} NPM not found. Skipping."; FAILURE_LIST+=("Node.js/NPM"); return; fi; CMD_CHECK="npm list -g --depth=0"; INSTALL_CMD="npm install -g" ;;
-        pip) if ! command -v pip &>/dev/null; then echo -e "${YELLOW}Notification:${NC} PIP not found. Skipping."; FAILURE_LIST+=("Python/PIP"); return; fi; (pip install --upgrade pip setuptools wheel) &>/dev/null & spinner $!; wait $!; CMD_CHECK="pip show"; INSTALL_CMD="pip install --no-cache-dir" ;;
-    esac
-    local package_list; package_list=$(build_package_list "$pkg_type" "$SELECTED_PROFILE"); if [ -z "$package_list" ]; then echo "No packages found in this profile for type: ${type_name}."; return; fi
-    for pkg_name in $package_list; do
+
+# --- Generic package processing loop ---
+_process_package_list() {
+    local CMD_CHECK="$1"; local INSTALL_CMD="$2"; shift 2; local package_list=("$@")
+    for pkg_name in "${package_list[@]}"; do
         if $CMD_CHECK "$pkg_name" &>/dev/null; then SKIPPED_LIST+=("$pkg_name"); echo -e " ${YELLOW}[SKIP]${NC} ${pkg_name} (already installed)";
         else echo -en "  Installing ${BOLD}${pkg_name}${NC}... "; ($INSTALL_CMD "$pkg_name") &>/dev/null & local pid=$!; spinner $pid; wait $pid; local exit_code=$?; printf "\r\033[K";
             if [ "$exit_code" -eq 0 ]; then echo -e " ${GREEN}[ OK ]${NC}  ${pkg_name}"; SUCCESS_LIST+=("$pkg_name"); else echo -e " ${RED}[FAIL]${NC}  ${pkg_name}"; FAILURE_LIST+=("$pkg_name"); fi; fi
     done
+}
+
+# --- Dedicated installer for PKG packages ---
+install_pkg() {
+    print_banner "Installing PKG Packages"
+    local package_list; package_list=$(build_package_list "pkg" "$SELECTED_PROFILE")
+    if [ -z "$package_list" ]; then echo "No PKG packages found in this profile."; return; fi
+    local list_array; readarray -t list_array <<< "$package_list"
+    _process_package_list "dpkg -s" "pkg install -y" "${list_array[@]}"
+}
+
+# --- Dedicated installer for NPM packages ---
+install_npm() {
+    print_banner "Installing NPM Packages"
+    if ! command -v npm &>/dev/null; then echo -e "${YELLOW}Notification:${NC} NPM not found. Skipping."; FAILURE_LIST+=("Node.js/NPM"); return; fi
+    local package_list; package_list=$(build_package_list "npm" "$SELECTED_PROFILE")
+    if [ -z "$package_list" ]; then echo "No NPM packages found in this profile."; return; fi
+    local list_array; readarray -t list_array <<< "$package_list"
+    _process_package_list "npm list -g --depth=0" "npm install -g" "${list_array[@]}"
+}
+
+# --- Dedicated installer for PIP packages ---
+install_pip() {
+    print_banner "Installing PIP Packages"
+    if ! command -v pip &>/dev/null; then echo -e "${YELLOW}Notification:${NC} PIP not found. Skipping."; FAILURE_LIST+=("Python/PIP"); return; fi
+    (pip install --upgrade pip setuptools wheel) &>/dev/null & spinner $!; wait $!
+    local package_list; package_list=$(build_package_list "pip" "$SELECTED_PROFILE")
+    if [ -z "$package_list" ]; then echo "No PIP packages found in this profile."; return; fi
+    local list_array; readarray -t list_array <<< "$package_list"
+    _process_package_list "pip show" "pip install --no-cache-dir" "${list_array[@]}"
 }
 
 # ==============================================================================
@@ -114,7 +140,7 @@ main_menu() {
     echo; echo -e "  ${CYAN}5)${NC}  Change Profile"; echo -e "  ${CYAN}6)${NC}  Exit Ashno"
 }
 
-# --- THE DEFINITIVE FIX IS HERE: Robust, readable, and flawless menu logic ---
+# --- Flawless and readable menu logic ---
 profile_selection_menu() {
     clear; print_banner "Choose Installation Profile";
     local profiles=(); while IFS= read -r line; do profiles+=("$line"); done < <(find "$PROFILES_DIR" -maxdepth 1 -mindepth 1 -type d | sort);
@@ -128,7 +154,6 @@ profile_selection_menu() {
         local profile_name; profile_name=$(basename "$profile_path")
         local option_line
         
-        # Build the main option line first, with the correct count
         case "$profile_name" in
             "1_essentials") option_line=$(printf "  ${CYAN}%2d)${NC} ${BOLD}Essentials${NC}" "$count") ;;
             "2_extended")   option_line=$(printf "  ${CYAN}%2d)${NC} ${BOLD}Extended${NC} ${GREEN}(Recommended)${NC}" "$count") ;;
@@ -137,14 +162,12 @@ profile_selection_menu() {
         esac
         echo -e "$option_line"
         
-        # Now print the corresponding description on a new line for perfect alignment
         case "$profile_name" in
             "1_essentials") echo -e "     A lightweight, minimal setup." ;;
             "2_extended")   echo -e "     For developers and advanced users." ;;
             "3_complete")   echo -e "     A comprehensive toolkit for power users." ;;
         esac
-        echo # Add a blank line for spacing between entries
-        
+        echo # Add a blank line for spacing
         count=$((count + 1))
     done
     printf "  ${CYAN}%2d)${NC} ${BOLD}%s${NC}\n" "$count" "Exit Ashno"
@@ -168,9 +191,9 @@ if [ $# -gt 0 ]; then
     
     handle_updates "auto"; SELECTED_PROFILE=$profile_arg; pre_flight_checks
     [ "$action_arg" == "--all" ] || [ "$action_arg" == "--pkg" ] && update_termux
-    [ "$action_arg" == "--all" ] || [ "$action_arg" == "--pkg" ] && install_packages "pkg" "PKG"
-    [ "$action_arg" == "--all" ] || [ "$action_arg" == "--npm" ] && install_packages "npm" "NPM"
-    [ "$action_arg" == "--all" ] || [ "$action_arg" == "--pip" ] && install_packages "pip" "PIP"
+    [ "$action_arg" == "--all" ] || [ "$action_arg" == "--pkg" ] && install_pkg
+    [ "$action_arg" == "--all" ] || [ "$action_arg" == "--npm" ] && install_npm
+    [ "$action_arg" == "--all" ] || [ "$action_arg" == "--pip" ] && install_pip
     print_summary_report; exit 0
 fi
 
@@ -178,10 +201,10 @@ clear; pre_flight_checks; handle_updates "auto"; profile_selection_menu
 while true; do
     main_menu; print_prompt; read main_choice
     case $main_choice in
-        1) update_termux; install_packages "pkg" "PKG"; install_packages "npm" "NPM"; install_packages "pip" "PIP";;
-        2) update_termux; install_packages "pkg" "PKG";;
-        3) install_packages "npm" "NPM";;
-        4) install_packages "pip" "PIP";;
+        1) update_termux; install_pkg; install_npm; install_pip;;
+        2) update_termux; install_pkg;;
+        3) install_npm;;
+        4) install_pip;;
         5) profile_selection_menu; continue;;
         6) echo -e "\nExiting Ashno."; exit 0;;
         *) echo -e "\n${RED}Invalid choice.${NC}"; sleep 1; continue;;
