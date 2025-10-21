@@ -4,7 +4,7 @@
   </p>
   <br/>
     <p>
-    <img alt="Version" src="https://img.shields.io/badge/version-1.3.7-blue?style=for-the-badge&logo=github">
+    <img alt="Version" src="https://img.shields.io/badge/version-1.8.3-blue?style=for-the-badge&logo=github">
     <img alt="Platform" src="https://img.shields.io/badge/platform-Termux-brightgreen?style=for-the-badge&logo=android">
     <img alt="License" src="https://img.shields.io/badge/license-MIT-purple?style=for-the-badge">
     <br>
