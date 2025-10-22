@@ -35,8 +35,16 @@ trap cleanup INT TERM
 # SECTION: UI & CORE HELPER FUNCTIONS (State of the Art)
 # ==============================================================================
 print_banner() {
-    local title=" $1 "; local len=${#title}; local border; border=$(printf "%*s" "$len" | tr ' ' '=')
-    echo -e "\n${BLUE}+--${border}--+${NC}"; echo -e "${BLUE}|  ${BOLD}${YELLOW}${title} ${BLUE} |${NC}"; echo -e "${BLUE}+--${border}--+${NC}"
+    local title=" $1 "
+    # Calculate the length of the inner content (title + 2 spaces padding)
+    local inner_len=$((${#title} + 2))
+    # Build the horizontal border string by repeating '─'
+    local border_line
+    border_line=$(printf '─%.0s' $(seq 1 $inner_len))
+
+    echo -e "\n${BLUE}╭─${border_line}─╮${NC}"
+    echo -e "${BLUE}│  ${BOLD}${YELLOW}${title}${BLUE}  │${NC}"
+    echo -e "${BLUE}╰─${border_line}─╯${NC}"
 }
 print_prompt() { echo -en "\n${CYAN}>${NC}${BOLD} Select an option:${NC} "; }
 setup_logging() {
