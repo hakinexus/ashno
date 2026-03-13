@@ -38,22 +38,32 @@ Running without commands launches the interactive menu.
 }
 
 print_summary_report() {
-    print_banner "Installation Summary Report"
+    echo ""
     
     if command -v gum &>/dev/null; then
-        local error_note=""
+        # Build each styled line separately, then join vertically inside a box
+        local header
+        header=$(gum style --foreground 212 --bold --align center "━━━ Installation Summary ━━━")
+        
+        local line_ok line_fail line_skip
+        line_ok=$(gum style --foreground 46 "  ✔ Successful:  ${#SUCCESS_LIST[@]}")
+        line_fail=$(gum style --foreground 196 "  ✖ Failed:      ${#FAILURE_LIST[@]}")
+        line_skip=$(gum style --foreground 214 "  ● Skipped:     ${#SKIPPED_LIST[@]}")
+        
+        local error_line=""
         if [ ${#FAILURE_LIST[@]} -gt 0 ]; then
-            error_note="\n\n**NOTE:** Errors occurred. Check the log file:\n\`${LOG_FILE}\`"
+            error_line=$(printf "\n%s\n%s" \
+                "$(gum style --foreground 214 --bold '  ⚠ Errors logged to:')" \
+                "$(gum style --foreground 250 --italic "  ${LOG_FILE}")")
         fi
         
-        # We use gum format to render markdown, and wrap it in a beautiful box
-        gum format "# Installation Summary
-- ✔ **Successful:** ${#SUCCESS_LIST[@]}
-- ✖ **Failed:**     ${#FAILURE_LIST[@]}
-- ● **Skipped:**    ${#SKIPPED_LIST[@]}
-${error_note}
-
-### **Operation Complete.**" | gum style --border rounded --border-foreground 212 --padding "1 2" --margin "0 1"
+        local footer
+        footer=$(gum style --foreground 46 --bold --align center "Operation Complete ✔")
+        
+        # Assemble lines and wrap in a single clean box
+        printf "%s\n\n%s\n%s\n%s\n%s\n\n%s" \
+            "$header" "$line_ok" "$line_fail" "$line_skip" "$error_line" "$footer" \
+            | gum style --border rounded --border-foreground 212 --padding "1 2" --margin "0 1"
     else
         echo -e " Summary of all installation operations."; echo
         echo -e " ${GREEN}✔ Successful: ${#SUCCESS_LIST[@]}${NC}"
@@ -66,6 +76,7 @@ ${error_note}
         fi
         echo -e "\n${GREEN}${BOLD}Operation Complete.${NC}"
     fi
+    echo ""
 }
 
 main_menu() {
