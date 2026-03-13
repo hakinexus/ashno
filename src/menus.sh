@@ -5,15 +5,36 @@
 
 print_help_menu() {
     clear; print_banner "Ashno Help Manual"
-    echo -e "A professional, self-updating tool that installs packages from profiles."
-    echo; echo -e "${BOLD}${YELLOW}USAGE:${NC}"; echo -e "  ashno ${PURPLE}[COMMANDS]${NC}"; echo -e "    Running without commands launches the interactive menu."
-    echo; echo -e "${BOLD}${YELLOW}INSTALLATION COMMANDS:${NC}"
-    printf "  ${PURPLE}%-20s${NC} %s\n" "--profile <NAME>" "Required. Selects a profile by its directory name."
-    printf "  ${PURPLE}%-20s${NC} %s\n" "--all | --pkg | ..." "Required. The action to perform (install all, pkg, etc.)."
-    echo; echo -e "${BOLD}${YELLOW}UTILITY COMMANDS:${NC}"
-    printf "  ${PURPLE}%-20s${NC} %s\n" "-u, --update" "Checks for and applies updates to Ashno itself."
-    printf "  ${PURPLE}%-20s${NC} %s\n" "-h, --help" "Display this help manual and exit."
-    echo; echo -e "${BOLD}${YELLOW}EXAMPLE:${NC}"; echo -e "  ashno --profile 2_extended --all"; echo
+    if command -v gum &>/dev/null; then
+        gum format "## Usage
+\`ashno [COMMANDS]\`
+Running without commands launches the interactive menu.
+
+## Installation Commands
+| Flag | Description |
+|---|---|
+| \`--profile <NAME>\` | Selects a profile by its directory name |
+| \`--all / --pkg / --npm / --pip\` | The action to perform |
+
+## Utility Commands
+| Flag | Description |
+|---|---|
+| \`-u, --update\` | Checks for and applies updates |
+| \`-h, --help\` | Display this help manual and exit |
+
+## Example
+\`ashno --profile 2_extended --all\`" | gum style --border rounded --border-foreground 212 --padding "1 2" --margin "0 1"
+    else
+        echo -e "A professional, self-updating tool that installs packages from profiles."
+        echo; echo -e "${BOLD}${YELLOW}USAGE:${NC}"; echo -e "  ashno ${PURPLE}[COMMANDS]${NC}"; echo -e "    Running without commands launches the interactive menu."
+        echo; echo -e "${BOLD}${YELLOW}INSTALLATION COMMANDS:${NC}"
+        printf "  ${PURPLE}%-20s${NC} %s\n" "--profile <NAME>" "Required. Selects a profile by its directory name."
+        printf "  ${PURPLE}%-20s${NC} %s\n" "--all | --pkg | ..." "Required. The action to perform (install all, pkg, etc.)."
+        echo; echo -e "${BOLD}${YELLOW}UTILITY COMMANDS:${NC}"
+        printf "  ${PURPLE}%-20s${NC} %s\n" "-u, --update" "Checks for and applies updates to Ashno itself."
+        printf "  ${PURPLE}%-20s${NC} %s\n" "-h, --help" "Display this help manual and exit."
+        echo; echo -e "${BOLD}${YELLOW}EXAMPLE:${NC}"; echo -e "  ashno --profile 2_extended --all"; echo
+    fi
 }
 
 print_summary_report() {
@@ -32,7 +53,7 @@ print_summary_report() {
 - ● **Skipped:**    ${#SKIPPED_LIST[@]}
 ${error_note}
 
-### **Operation Complete.**" | gum style --border rounded --border-foreground 212 --padding "1 4" --margin "1 2"
+### **Operation Complete.**" | gum style --border rounded --border-foreground 212 --padding "1 2" --margin "0 1"
     else
         echo -e " Summary of all installation operations."; echo
         echo -e " ${GREEN}✔ Successful: ${#SUCCESS_LIST[@]}${NC}"
@@ -49,11 +70,12 @@ ${error_note}
 
 main_menu() {
     clear; print_banner "Main Menu"
-    echo -e "  ${BOLD}Active Profile:${NC} ${YELLOW}${SELECTED_PROFILE}${NC}\n"
     
     if command -v gum &>/dev/null; then
+        gum style --foreground 250 --italic "  Profile: ${SELECTED_PROFILE}"
+        echo ""
         local choice
-        choice=$(gum choose --cursor "➜ " --cursor.foreground="212" --item.foreground="250" --selected.foreground="212" --selected.bold "Full Installation (PKG, NPM, PIP)" "Install PKG Packages" "Install NPM Packages" "Install PIP Packages" "Change Profile" "Exit Ashno")
+        choice=$(gum choose --cursor "➜ " --cursor.foreground="212" --item.foreground="250" --selected.foreground="212" --selected.bold --header="Select an action:" "Full Installation (PKG, NPM, PIP)" "Install PKG Packages" "Install NPM Packages" "Install PIP Packages" "Change Profile" "Exit Ashno")
         case "$choice" in
             "Full Installation (PKG, NPM, PIP)") main_choice=1 ;;
             "Install PKG Packages")              main_choice=2 ;;
@@ -63,6 +85,7 @@ main_menu() {
             "Exit Ashno")                        main_choice=6 ;;
         esac
     else
+        echo -e "  ${BOLD}Active Profile:${NC} ${YELLOW}${SELECTED_PROFILE}${NC}\n"
         echo -e "  ${CYAN}1)${NC}  ${BOLD}Full Installation${NC} (PKG, NPM, PIP)"
         echo -e "  ${CYAN}2)${NC}  Install ${BOLD}PKG${NC} Packages"
         echo -e "  ${CYAN}3)${NC}  Install ${BOLD}NPM${NC} Packages"

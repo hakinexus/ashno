@@ -34,16 +34,19 @@ trap cleanup INT TERM
 
 # --- Glamorous UI Helpers ---
 print_banner() {
-    local title=" $1 "
+    local title="$1"
     if command -v gum &>/dev/null; then
-        gum style --border double --margin "1 2" --padding "1 4" --border-foreground 212 --foreground 212 --bold --align center "$title"
+        echo ""
+        gum style --border double --margin "0 1" --padding "0 3" --border-foreground 212 --foreground 212 --bold --align center "$title"
+        echo ""
     else
-        local inner_len=$((${#title} + 2))
+        local padded=" $title "
+        local inner_len=$((${#padded} + 2))
         local border_line
         border_line=$(printf '─%.0s' $(seq 1 $inner_len))
 
         echo -e "\n${BLUE}╭─${border_line}─╮${NC}"
-        echo -e "${BLUE}│  ${BOLD}${YELLOW}${title}${BLUE}  │${NC}"
+        echo -e "${BLUE}│  ${BOLD}${YELLOW}${padded}${BLUE}  │${NC}"
         echo -e "${BLUE}╰─${border_line}─╯${NC}"
     fi
 }
@@ -51,12 +54,26 @@ print_banner() {
 print_formatting() {
     local mode="$1"; local msg="$2"
     if command -v gum &>/dev/null; then
+        local badge badge_text
         case "$mode" in
-            info)    echo -e "$(gum style --foreground 255 --background 39 --bold --padding "0 1" " INFO ") $(gum style --foreground 39 "$msg")" ;;
-            success) echo -e "$(gum style --foreground 255 --background 46 --bold --padding "0 1" " SUCCESS ") $(gum style --foreground 46 "$msg")" ;;
-            warn)    echo -e "$(gum style --foreground 255 --background 214 --bold --padding "0 1" " WARN ") $(gum style --foreground 214 "$msg")" ;;
-            error)   echo -e "$(gum style --foreground 255 --background 196 --bold --padding "0 1" " ERROR ") $(gum style --foreground 196 "$msg")" ;;
+            info)
+                badge=$(gum style --foreground 255 --background 39 --bold ' INFO ')
+                badge_text=$(gum style --foreground 39 "$msg")
+                ;;
+            success)
+                badge=$(gum style --foreground 255 --background 46 --bold '  OK  ')
+                badge_text=$(gum style --foreground 46 "$msg")
+                ;;
+            warn)
+                badge=$(gum style --foreground 0 --background 214 --bold ' WARN ')
+                badge_text=$(gum style --foreground 214 "$msg")
+                ;;
+            error)
+                badge=$(gum style --foreground 255 --background 196 --bold ' FAIL ')
+                badge_text=$(gum style --foreground 196 "$msg")
+                ;;
         esac
+        echo "$badge $badge_text"
     else
         case "$mode" in
             info)    echo -e " ${BLUE}ℹ${NC} $msg" ;;

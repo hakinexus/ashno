@@ -60,7 +60,7 @@ clear; handle_updates "auto"; profile_selection_menu
 pre_flight_checks
 setup_logging
 while true; do
-    main_menu; print_prompt; read main_choice
+    main_menu
     case $main_choice in
         1) update_termux; install_pkg; install_npm; install_pip;;
         2) update_termux; install_pkg;;
@@ -70,6 +70,11 @@ while true; do
         6) echo -e "\nExiting Ashno."; exit 0;;
         *) echo -e "\n${RED}Invalid choice.${NC}"; sleep 1; continue;;
     esac
-    print_summary_report; echo; read -n 1 -s -r -p "Press any key to return to the main menu..."
+    print_summary_report
+    if command -v gum &>/dev/null; then
+        gum confirm "Return to main menu?" && continue || { echo -e "\nExiting Ashno."; exit 0; }
+    else
+        echo; read -n 1 -s -r -p "Press any key to return to the main menu..."
+    fi
     SUCCESS_LIST=(); FAILURE_LIST=(); SKIPPED_LIST=();
 done
