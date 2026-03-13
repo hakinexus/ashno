@@ -52,6 +52,8 @@ update_termux() {
 
 _process_package_list() {
     local CMD_CHECK="$1"; local INSTALL_CMD="$2"; shift 2; local package_list=("$@")
+    local pending_list=()
+
     for pkg_name in "${package_list[@]}"; do
         # Trim whitespace
         pkg_name=$(echo "$pkg_name" | xargs)
@@ -61,32 +63,62 @@ _process_package_list() {
             SKIPPED_LIST+=("$pkg_name")
             echo -e " ${YELLOW}●${NC} ${pkg_name} (already installed)"
         else
-            local error_log; error_log=$(mktemp)
-            echo -en "  Installing ${BOLD}${pkg_name}${NC}... "
-            
-            ($INSTALL_CMD "$pkg_name") >/dev/null 2>"$error_log" & 
-            local pid=$!
-            spinner $pid
-            wait $pid
-            local exit_code=$?
-            printf "\r\033[K"
-
-            if [ "$exit_code" -eq 0 ]; then
-                echo -e " ${GREEN}✔${NC}  ${pkg_name}"
-                SUCCESS_LIST+=("$pkg_name")
-            else
-                echo -e " ${RED}✖${NC}  ${pkg_name}"
-                FAILURE_LIST+=("$pkg_name")
-                {
-                    echo "-------------------------------------------------"
-                    echo "[FAIL] Package Install: '$pkg_name' at $(date)"
-                    echo "-------------------------------------------------"
-                    cat "$error_log"
-                    echo -e "\n"
-                } >> "$LOG_FILE"
-            fi
-            rm -f "$error_log"
+            pending_list+=("$pkg_name")
         fi
+    done
+
+    if [ ${#pending_list[@]} -eq 0 ]; then
+        return 0
+    fi
+
+    local batch_error_log; batch_error_log=$(mktemp)
+    echo -en "  Installing ${#pending_list[@]} packages (Batch Mode)... "
+    
+    ($INSTALL_CMD "${pending_list[@]}") >/dev/null 2>"$batch_error_log" & 
+    local pid=$!
+    spinner $pid
+    wait $pid
+    local batch_exit_code=$?
+    printf "\r\033[K"
+
+    if [ "$batch_exit_code" -eq 0 ]; then
+        echo -e " ${GREEN}✔${NC} Installed ${#pending_list[@]} packages successfully"
+        for pkg_name in "${pending_list[@]}"; do
+            SUCCESS_LIST+=("$pkg_name")
+        done
+        rm -f "$batch_error_log"
+        return 0
+    fi
+
+    echo -e " ${YELLOW}⚠${NC} Batch installation failed. Falling back to sequential mode..."
+    rm -f "$batch_error_log"
+
+    for pkg_name in "${pending_list[@]}"; do
+        local error_log; error_log=$(mktemp)
+        echo -en "  Installing ${BOLD}${pkg_name}${NC}... "
+        
+        ($INSTALL_CMD "$pkg_name") >/dev/null 2>"$error_log" & 
+        local pid=$!
+        spinner $pid
+        wait $pid
+        local exit_code=$?
+        printf "\r\033[K"
+
+        if [ "$exit_code" -eq 0 ]; then
+            echo -e " ${GREEN}✔${NC}  ${pkg_name}"
+            SUCCESS_LIST+=("$pkg_name")
+        else
+            echo -e " ${RED}✖${NC}  ${pkg_name}"
+            FAILURE_LIST+=("$pkg_name")
+            {
+                echo "-------------------------------------------------"
+                echo "[FAIL] Package Install: '$pkg_name' at $(date)"
+                echo "-------------------------------------------------"
+                cat "$error_log"
+                echo -e "\n"
+            } >> "$LOG_FILE"
+        fi
+        rm -f "$error_log"
     done
 }
 
