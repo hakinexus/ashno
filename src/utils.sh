@@ -5,21 +5,22 @@
 
 # --- BOOTSTRAP: Ensure Core Dependencies Exist Before UI Starts ---
 bootstrap_core() {
-    # We need ncurses-utils for 'tput' (UI) and coreutils for basic logic
+    # We need ncurses-utils for 'tput' (UI), coreutils for basic logic, and gum for God-Level UI
     local missing_deps=0
     if ! command -v tput &>/dev/null; then missing_deps=1; fi
+    if ! command -v gum &>/dev/null; then missing_deps=1; fi
     
     if [ $missing_deps -eq 1 ]; then
-        echo "Initializing core dependencies for first run..."
-        # Silently update and install ncurses-utils
+        echo "Initializing core dependencies (including Gum) for optimal UI..."
+        # Silently update and install required packages
         pkg update -y -o Dpkg::Options::="--force-confnew" &>/dev/null
-        pkg install -y ncurses-utils coreutils &>/dev/null
+        pkg install -y ncurses-utils coreutils gum &>/dev/null
     fi
 }
 bootstrap_core
 
 # --- UI Helper Wrappers (Fail-safe) ---
-# These prevent the script from crashing if tput is somehow still missing
+# These prevent the script from crashing if tput is somehow missing
 cursor_hide() { command -v tput &>/dev/null && tput civis; }
 cursor_show() { command -v tput &>/dev/null && tput cnorm; }
 
@@ -31,15 +32,39 @@ cleanup() {
 }
 trap cleanup INT TERM
 
+# --- Glamorous UI Helpers ---
 print_banner() {
     local title=" $1 "
-    local inner_len=$((${#title} + 2))
-    local border_line
-    border_line=$(printf '─%.0s' $(seq 1 $inner_len))
+    if command -v gum &>/dev/null; then
+        gum style --border rounded --margin "1 0" --padding "0 2" --border-foreground 212 --foreground 212 "$title"
+    else
+        local inner_len=$((${#title} + 2))
+        local border_line
+        border_line=$(printf '─%.0s' $(seq 1 $inner_len))
 
-    echo -e "\n${BLUE}╭─${border_line}─╮${NC}"
-    echo -e "${BLUE}│  ${BOLD}${YELLOW}${title}${BLUE}  │${NC}"
-    echo -e "${BLUE}╰─${border_line}─╯${NC}"
+        echo -e "\n${BLUE}╭─${border_line}─╮${NC}"
+        echo -e "${BLUE}│  ${BOLD}${YELLOW}${title}${BLUE}  │${NC}"
+        echo -e "${BLUE}╰─${border_line}─╯${NC}"
+    fi
+}
+
+print_formatting() {
+    local mode="$1"; local msg="$2"
+    if command -v gum &>/dev/null; then
+        case "$mode" in
+            info)    gum style --foreground 39 "ℹ $msg" ;;
+            success) gum style --foreground 46 "✔ $msg" ;;
+            warn)    gum style --foreground 214 "⚠ $msg" ;;
+            error)   gum style --foreground 196 "✖ $msg" ;;
+        esac
+    else
+        case "$mode" in
+            info)    echo -e " ${BLUE}ℹ${NC} $msg" ;;
+            success) echo -e " ${GREEN}✔${NC} $msg" ;;
+            warn)    echo -e " ${YELLOW}⚠${NC} $msg" ;;
+            error)   echo -e " ${RED}✖${NC} $msg" ;;
+        esac
+    fi
 }
 
 print_prompt() { echo -en "\n${CYAN}>${NC}${BOLD} Select an option:${NC} "; }
@@ -60,13 +85,26 @@ setup_logging() {
 spinner() {
     cursor_hide
     local pid=$1
-    local str='⣾⣽⣻⢿⡿⣟⣯⣷'
-    while kill -0 "$pid" 2>/dev/null; do
-        printf "${PURPLE}%s${NC}" "${str:0:1}"
-        str=${str:1}${str:0:1}
-        sleep 0.08
-        printf "\b"
-    done
-    printf " "
+    if command -v gum &>/dev/null; then
+        # We can't cleanly wrap a pre-existing background pid with `gum spin` directly easily,
+        # but we can use gum to render the spinner characters styling.
+        local str='⣾⣽⣻⢿⡿⣟⣯⣷'
+        while kill -0 "$pid" 2>/dev/null; do
+            printf "\e[38;5;212m%s\e[0m" "${str:0:1}" # Magenta/Pink color for Gum theme
+            str=${str:1}${str:0:1}
+            sleep 0.08
+            printf "\b"
+        done
+        printf " "
+    else
+        local str='⣾⣽⣻⢿⡿⣟⣯⣷'
+        while kill -0 "$pid" 2>/dev/null; do
+            printf "${PURPLE}%s${NC}" "${str:0:1}"
+            str=${str:1}${str:0:1}
+            sleep 0.08
+            printf "\b"
+        done
+        printf " "
+    fi
     cursor_show
 }

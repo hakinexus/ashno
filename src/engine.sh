@@ -28,12 +28,12 @@ build_package_list() {
 
 pre_flight_checks() { 
     print_banner "Performing System Checks"
-    if ! ping -c 1 8.8.8.8 &>/dev/null; then echo -e " ${RED}✖${NC} Internet: Disconnected"; exit 1; fi
-    echo -e " ${GREEN}✔${NC} Internet Connection: OK"
+    if ! ping -c 1 8.8.8.8 &>/dev/null; then print_formatting error "Internet: Disconnected"; exit 1; fi
+    print_formatting success "Internet Connection: OK"
     
     # Check Termux Storage Access
     if [ ! -d ~/storage ]; then
-        echo -e " ${YELLOW}!${NC} Requesting Storage Access..."
+        print_formatting warn "Requesting Storage Access..."
         termux-setup-storage
     fi
 }
@@ -47,7 +47,7 @@ update_termux() {
     spinner $pid
     wait $pid
     printf "\r\033[K"
-    echo -e " ${GREEN}✔${NC} Base system update complete."
+    print_formatting success "Base system update complete."
 }
 
 _process_package_list() {
@@ -61,7 +61,7 @@ _process_package_list() {
 
         if $CMD_CHECK "$pkg_name" &>/dev/null; then
             SKIPPED_LIST+=("$pkg_name")
-            echo -e " ${YELLOW}●${NC} ${pkg_name} (already installed)"
+            print_formatting info "${pkg_name} (already installed)"
         else
             pending_list+=("$pkg_name")
         fi
@@ -82,7 +82,7 @@ _process_package_list() {
     printf "\r\033[K"
 
     if [ "$batch_exit_code" -eq 0 ]; then
-        echo -e " ${GREEN}✔${NC} Installed ${#pending_list[@]} packages successfully"
+        print_formatting success "Installed ${#pending_list[@]} packages successfully"
         for pkg_name in "${pending_list[@]}"; do
             SUCCESS_LIST+=("$pkg_name")
         done
@@ -90,7 +90,7 @@ _process_package_list() {
         return 0
     fi
 
-    echo -e " ${YELLOW}⚠${NC} Batch installation failed. Falling back to sequential mode..."
+    print_formatting warn "Batch installation failed. Falling back to sequential mode..."
     rm -f "$batch_error_log"
 
     for pkg_name in "${pending_list[@]}"; do
@@ -105,10 +105,10 @@ _process_package_list() {
         printf "\r\033[K"
 
         if [ "$exit_code" -eq 0 ]; then
-            echo -e " ${GREEN}✔${NC}  ${pkg_name}"
+            print_formatting success " ${pkg_name}"
             SUCCESS_LIST+=("$pkg_name")
         else
-            echo -e " ${RED}✖${NC}  ${pkg_name}"
+            print_formatting error " ${pkg_name}"
             FAILURE_LIST+=("$pkg_name")
             {
                 echo "-------------------------------------------------"
@@ -133,7 +133,7 @@ install_pkg() {
 install_npm() {
     print_banner "Installing NPM Packages"
     if ! command -v npm &>/dev/null; then 
-        echo -e "${YELLOW}Notification:${NC} NPM not found. Installing Node.js first..."
+        print_formatting warn "NPM not found. Installing Node.js first..."
         pkg install -y nodejs &>/dev/null
     fi
     local package_list; package_list=$(build_package_list "npm" "$SELECTED_PROFILE")
@@ -145,7 +145,7 @@ install_npm() {
 install_pip() {
     print_banner "Installing PIP Packages"
     if ! command -v pip &>/dev/null; then 
-        echo -e "${YELLOW}Notification:${NC} PIP not found. Installing Python first..."
+        print_formatting warn "PIP not found. Installing Python first..."
         pkg install -y python &>/dev/null
     fi
     echo -en "  Upgrading PIP core... "
