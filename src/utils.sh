@@ -36,7 +36,7 @@ trap cleanup INT TERM
 print_banner() {
     local title=" $1 "
     if command -v gum &>/dev/null; then
-        gum style --border rounded --margin "1 0" --padding "0 2" --border-foreground 212 --foreground 212 "$title"
+        gum style --border double --margin "1 2" --padding "1 4" --border-foreground 212 --foreground 212 --bold --align center "$title"
     else
         local inner_len=$((${#title} + 2))
         local border_line
@@ -52,10 +52,10 @@ print_formatting() {
     local mode="$1"; local msg="$2"
     if command -v gum &>/dev/null; then
         case "$mode" in
-            info)    gum style --foreground 39 "ℹ $msg" ;;
-            success) gum style --foreground 46 "✔ $msg" ;;
-            warn)    gum style --foreground 214 "⚠ $msg" ;;
-            error)   gum style --foreground 196 "✖ $msg" ;;
+            info)    echo -e "$(gum style --foreground 255 --background 39 --bold --padding "0 1" " INFO ") $(gum style --foreground 39 "$msg")" ;;
+            success) echo -e "$(gum style --foreground 255 --background 46 --bold --padding "0 1" " SUCCESS ") $(gum style --foreground 46 "$msg")" ;;
+            warn)    echo -e "$(gum style --foreground 255 --background 214 --bold --padding "0 1" " WARN ") $(gum style --foreground 214 "$msg")" ;;
+            error)   echo -e "$(gum style --foreground 255 --background 196 --bold --padding "0 1" " ERROR ") $(gum style --foreground 196 "$msg")" ;;
         esac
     else
         case "$mode" in

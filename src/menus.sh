@@ -25,14 +25,14 @@ print_summary_report() {
             error_note="\n\n**NOTE:** Errors occurred. Check the log file:\n\`${LOG_FILE}\`"
         fi
         
-        # We use gum format to render markdown
-        gum format "# Summary of all installation operations.
+        # We use gum format to render markdown, and wrap it in a beautiful box
+        gum format "# Installation Summary
 - ✔ **Successful:** ${#SUCCESS_LIST[@]}
 - ✖ **Failed:**     ${#FAILURE_LIST[@]}
 - ● **Skipped:**    ${#SKIPPED_LIST[@]}
 ${error_note}
 
-### **Operation Complete.**"
+### **Operation Complete.**" | gum style --border rounded --border-foreground 212 --padding "1 4" --margin "1 2"
     else
         echo -e " Summary of all installation operations."; echo
         echo -e " ${GREEN}✔ Successful: ${#SUCCESS_LIST[@]}${NC}"
@@ -53,7 +53,7 @@ main_menu() {
     
     if command -v gum &>/dev/null; then
         local choice
-        choice=$(gum choose --cursor.foreground="212" "Full Installation (PKG, NPM, PIP)" "Install PKG Packages" "Install NPM Packages" "Install PIP Packages" "Change Profile" "Exit Ashno")
+        choice=$(gum choose --cursor "➜ " --cursor.foreground="212" --item.foreground="250" --selected.foreground="212" --selected.bold "Full Installation (PKG, NPM, PIP)" "Install PKG Packages" "Install NPM Packages" "Install PIP Packages" "Change Profile" "Exit Ashno")
         case "$choice" in
             "Full Installation (PKG, NPM, PIP)") main_choice=1 ;;
             "Install PKG Packages")              main_choice=2 ;;
@@ -96,7 +96,7 @@ profile_selection_menu() {
         gum_opts+=("Exit Ashno")
         
         local gum_choice
-        gum_choice=$(gum choose --cursor.foreground="212" "${gum_opts[@]}")
+        gum_choice=$(gum choose --cursor "➜ " --cursor.foreground="212" --item.foreground="250" --selected.foreground="212" --selected.bold "${gum_opts[@]}")
         
         if [ "$gum_choice" == "Exit Ashno" ]; then
             echo -e "\nExiting Ashno."; exit 0
