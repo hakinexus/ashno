@@ -13,6 +13,9 @@ azure-storage-blob    # Microsoft Azure
 # --- Big Data & Distributed Computing ---
 # A client for Apache Spark to perform large-scale data processing
 pyspark
+dask
+polars
+pyarrow
 
 # --- Reverse Engineering & Malware Analysis ---
 # Python libraries for deep binary analysis and executable parsing

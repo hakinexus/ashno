@@ -18,6 +18,13 @@ gatsby-cli
 # Tools for mocking APIs and building with modern backend frameworks
 json-server
 @nestjs/cli
+ts-node
+
+# --- Modern Build Tools ---
+# Blazing fast bundlers and monorepo managers
+vite
+nx
+turbo
 
 # --- Linting & Code Quality (Advanced) ---
 # Plugins and tools for maintaining high-quality codebases
@@ -29,3 +36,4 @@ npm-check-updates
 # Command-line interfaces for serverless platforms
 serverless
 wrangler
+vercel

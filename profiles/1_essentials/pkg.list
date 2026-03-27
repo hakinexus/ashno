@@ -19,6 +19,11 @@ fish
 htop
 tmux
 neofetch
+eza
+bat
+fd
+zoxide
+starship
 
 # --- File Management & Archives ---
 # Tools for creating and extracting compressed files
@@ -29,17 +34,22 @@ zip
 # --- Development Languages & Compilers ---
 # A comprehensive suite of compilers and language runtimes
 git
+lazygit
+gh
 build-essential
 clang
 cmake
 python
-python2
 nodejs-lts
 openjdk-17
 golang
 ruby
 perl
 php
+rust
+zig
+nim
+dart
 
 # --- Python Native Extensions (for performance & compatibility) ---
 # Critical data science packages compiled natively for Termux
@@ -53,7 +63,6 @@ curl
 wget
 nmap
 net-tools
-inetutils
 tcpdump
 whois
 dnsutils

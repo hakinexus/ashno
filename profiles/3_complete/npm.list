@@ -11,7 +11,10 @@ ganache-cli
 # --- Infrastructure as Code (IaC) & Cloud ---
 # CLIs for defining and deploying cloud infrastructure with code
 cdk # AWS Cloud Development Kit
+aws-cdk
 @google-cloud/gac-tools # Google Cloud
+netlify-cli
+firebase-tools
 
 # --- Mobile App Development ---
 # Frameworks for building cross-platform mobile applications with web tech
@@ -23,3 +26,4 @@ cordova
 jsdoc
 typedoc
 @graphql-cli/cli
+swagger-cli

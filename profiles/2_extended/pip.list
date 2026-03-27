@@ -18,6 +18,13 @@ poetry
 # Tools for building robust, self-documenting APIs
 pydantic
 python-multipart
+alembic
+celery
+redis
+
+# --- Code Quality ---
+# Blazing fast linter and formatter
+ruff
 
 # --- Advanced Utilities & CLIs ---
 # Libraries for creating powerful CLIs, processing data, and more

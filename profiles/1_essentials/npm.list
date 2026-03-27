@@ -5,6 +5,7 @@
 # --- Core Tooling & Process Management ---
 # Essential package managers and server process managers
 yarn
+pnpm
 pm2
 nodemon
 
@@ -12,6 +13,7 @@ nodemon
 # Simple, zero-configuration servers for local development
 http-server
 live-server
+serve
 
 # --- JavaScript Development & Bundling ---
 # Linters, formatters, and compilers for modern JS projects

@@ -35,7 +35,8 @@ sqlalchemy
 # --- Code Quality & Linting ---
 # Tools to enforce style guides and find errors
 pylint
-autopep8
+black
+flake8
 
 # --- Automation & System Management ---
 # Industry-standard automation engine
@@ -44,6 +45,9 @@ ansible
 # --- Utilities & Miscellaneous ---
 # The modern and maintained tool for downloading web videos
 yt-dlp
+rich
+pytest
+ipython
 
 # An interactive computing environment
 jupyter
