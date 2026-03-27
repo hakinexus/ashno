@@ -47,7 +47,7 @@ handle_updates() {
         git pull origin main &>/dev/null
         printf "\r\033[K"
         print_formatting success "Ashno updated. Restarting..."
-        exec "$0" "$@"
+        exec "$SCRIPT_PATH" "${ORIGINAL_ARGS[@]}"
     else
         print_formatting warn "Update cancelled."
         [ "$mode" == "auto" ] && exit 1 || return 1

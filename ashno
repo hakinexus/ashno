@@ -15,6 +15,7 @@ readonly SCRIPT_NAME="Ashno"
 readonly SCRIPT_PATH=$(readlink -f "$0")
 readonly SCRIPT_DIR=$(dirname "$SCRIPT_PATH")
 readonly SRC_DIR="$SCRIPT_DIR/src"
+ORIGINAL_ARGS=("$@")
 
 # --- Source Modules ---
 source "$SRC_DIR/config.sh"
