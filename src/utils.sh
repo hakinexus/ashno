@@ -87,16 +87,7 @@ print_formatting() {
 print_prompt() { echo -en "\n${CYAN}>${NC}${BOLD} Select an option:${NC} "; }
 
 setup_logging() {
-    mkdir -p "$LOG_DIR" || { echo -e "${RED}Fatal: Could not create log directory at ${LOG_DIR}${NC}"; exit 1; }
-    LOG_FILE="${LOG_DIR}/ashno_$(date +'%Y%m%d-%H%M%S').log"
-    {
-        echo "Ashno Installation Log"
-        echo "=========================================="
-        echo "Date: $(date)"
-        echo "Profile: ${SELECTED_PROFILE:-"N/A"}"
-        echo "System: $(uname -a)"
-        echo -e "\n"
-    } > "$LOG_FILE"
+    : # Error logging removed per user request
 }
 
 spinner() {

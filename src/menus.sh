@@ -50,19 +50,12 @@ print_summary_report() {
         line_fail=$(gum style --foreground 196 "  ✖ Failed:      ${#FAILURE_LIST[@]}")
         line_skip=$(gum style --foreground 214 "  ● Skipped:     ${#SKIPPED_LIST[@]}")
         
-        local error_line=""
-        if [ ${#FAILURE_LIST[@]} -gt 0 ]; then
-            error_line=$(printf "\n%s\n%s" \
-                "$(gum style --foreground 214 --bold '  ⚠ Errors logged to:')" \
-                "$(gum style --foreground 250 --italic "  ${LOG_FILE}")")
-        fi
-        
         local footer
         footer=$(gum style --foreground 46 --bold --align center "Operation Complete ✔")
         
         # Assemble lines and wrap in a single clean box
-        printf "%s\n\n%s\n%s\n%s\n%s\n\n%s" \
-            "$header" "$line_ok" "$line_fail" "$line_skip" "$error_line" "$footer" \
+        printf "%s\n\n%s\n%s\n%s\n\n%s" \
+            "$header" "$line_ok" "$line_fail" "$line_skip" "$footer" \
             | gum style --border rounded --border-foreground 212 --padding "1 2" --margin "0 1"
     else
         echo -e " Summary of all installation operations."; echo
@@ -70,10 +63,6 @@ print_summary_report() {
         echo -e " ${RED}✖ Failed:     ${#FAILURE_LIST[@]}${NC}"
         echo -e " ${YELLOW}● Skipped:    ${#SKIPPED_LIST[@]}${NC}"
 
-        if [ ${#FAILURE_LIST[@]} -gt 0 ]; then
-            echo; echo -e "${YELLOW}NOTE:${NC} Errors occurred. Check the log file:"
-            echo -e "      ${BOLD}${LOG_FILE}${NC}"
-        fi
         echo -e "\n${GREEN}${BOLD}Operation Complete.${NC}"
     fi
     echo ""

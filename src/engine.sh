@@ -50,6 +50,15 @@ update_termux() {
     print_formatting success "Base system update complete."
 }
 
+check_pkg_installed() {
+    local pkg_name="$1"
+    # Fast check: true package name
+    dpkg -s "$pkg_name" &>/dev/null && return 0
+    # Accurate check: virtual packages and aliases (0 newly installed means satisfied)
+    apt-get -s install "$pkg_name" 2>/dev/null | grep -q "0 newly installed" && return 0
+    return 1
+}
+
 _process_package_list() {
     local CMD_CHECK="$1"; local INSTALL_CMD="$2"; shift 2; local package_list=("$@")
     local pending_list=()
@@ -110,13 +119,6 @@ _process_package_list() {
         else
             print_formatting error " ${pkg_name}"
             FAILURE_LIST+=("$pkg_name")
-            {
-                echo "-------------------------------------------------"
-                echo "[FAIL] Package Install: '$pkg_name' at $(date)"
-                echo "-------------------------------------------------"
-                cat "$error_log"
-                echo -e "\n"
-            } >> "$LOG_FILE"
         fi
         rm -f "$error_log"
     done
@@ -127,7 +129,7 @@ install_pkg() {
     local package_list; package_list=$(build_package_list "pkg" "$SELECTED_PROFILE")
     if [ -z "$package_list" ]; then echo "No PKG packages found in this profile."; return; fi
     local list_array; readarray -t list_array <<< "$package_list"
-    _process_package_list "dpkg -s" "pkg install -y" "${list_array[@]}"
+    _process_package_list "check_pkg_installed" "pkg install -y" "${list_array[@]}"
 }
 
 install_npm() {
