@@ -3,7 +3,7 @@
 #
 # Ashno: The Professional Termux Toolkit Installer
 #
-# Version:      1.8.7
+# Version:      1.9.5
 # Author:       hakinexus
 # Description:  The definitive installer framework with a professional UI,
 #               automatic dependency resolution, and robust error handling.
@@ -23,6 +23,7 @@ source "$SRC_DIR/utils.sh"
 source "$SRC_DIR/updater.sh"
 source "$SRC_DIR/engine.sh"
 source "$SRC_DIR/menus.sh"
+source "$SRC_DIR/configure.sh"
 
 # ==============================================================================
 # SECTION: EXECUTION ENTRYPOINT
@@ -36,6 +37,7 @@ if [ $# -gt 0 ]; then
         case "$1" in
             -h|--help) print_help_menu; exit 0;;
             -u|--update) handle_updates "manual"; exit 0;;
+            -c|--configure) configure_menu; exit 0;;
             --profile)
                 if [ -z "${2:-}" ] || [[ "$2" == --* ]]; then
                     echo -e "${RED}Error: --profile requires a value.${NC}"; exit 1
@@ -70,11 +72,13 @@ while true; do
         2) update_termux; install_pkg;;
         3) install_npm;;
         4) install_pip;;
-        5) profile_selection_menu; continue;;
-        6) echo -e "\nExiting Ashno."; exit 0;;
+        5) configure_menu; continue;;
+        6) profile_selection_menu; continue;;
+        7) echo -e "\nExiting Ashno."; exit 0;;
         *) echo -e "\n${RED}Invalid choice.${NC}"; sleep 1; continue;;
     esac
     print_summary_report
+    offer_configuration
     if command -v gum &>/dev/null; then
         gum confirm "Return to main menu?" && continue || { echo -e "\nExiting Ashno."; exit 0; }
     else

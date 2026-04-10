@@ -1,2 +1,19 @@
 logs/
 vid/
+
+# Media files
+*.jpg
+*.png
+*.mp4
+*.gif
+*.webm
+
+# Claude Code
+CLAUDE.md
+.claude/
+
+# Sensitive / environment
+.env
+.env.*
+*.key
+*.pem
