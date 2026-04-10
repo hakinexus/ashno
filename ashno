@@ -3,7 +3,7 @@
 #
 # Ashno: The Professional Termux Toolkit Installer
 #
-# Version:      1.9.0 (Modularized & Flawless)
+# Version:      1.8.7
 # Author:       hakinexus
 # Description:  The definitive installer framework with a professional UI,
 #               automatic dependency resolution, and robust error handling.
@@ -33,12 +33,16 @@ if [ ! -d "$PROFILES_DIR" ]; then echo -e "${RED}Fatal Error: '${PROFILES_DIR}/'
 if [ $# -gt 0 ]; then
     profile_arg=""; action_arg=""
     while [ $# -gt 0 ]; do
-        case "$1" in 
-            -h|--help) print_help_menu; exit 0;; 
-            -u|--update) handle_updates "manual"; exit 0;; 
-            --profile) profile_arg="$2"; shift 2;; 
-            --all|--pkg|--npm|--pip) action_arg="$1"; shift 1;; 
-            *) echo -e "${RED}Invalid argument: $1${NC}\nUse 'ashno --help'."; exit 1;; 
+        case "$1" in
+            -h|--help) print_help_menu; exit 0;;
+            -u|--update) handle_updates "manual"; exit 0;;
+            --profile)
+                if [ -z "${2:-}" ] || [[ "$2" == --* ]]; then
+                    echo -e "${RED}Error: --profile requires a value.${NC}"; exit 1
+                fi
+                profile_arg="$2"; shift 2;;
+            --all|--pkg|--npm|--pip) action_arg="$1"; shift 1;;
+            *) echo -e "${RED}Invalid argument: $1${NC}\nUse 'ashno --help'."; exit 1;;
         esac
     done
     
@@ -46,12 +50,12 @@ if [ $# -gt 0 ]; then
         echo -e "${RED}Error: Valid --profile and action required.${NC}"; exit 1
     fi
     
-    SELECTED_PROFILE=$profile_arg
-    setup_logging; pre_flight_checks; handle_updates "auto"
-    
-    [ "$action_arg" == "--all" ] || [ "$action_arg" == "--pkg" ] && { update_termux; install_pkg; }
-    [ "$action_arg" == "--all" ] || [ "$action_arg" == "--npm" ] && install_npm
-    [ "$action_arg" == "--all" ] || [ "$action_arg" == "--pip" ] && install_pip
+    SELECTED_PROFILE="$profile_arg"
+    pre_flight_checks; handle_updates "auto"
+
+    if [ "$action_arg" = "--all" ] || [ "$action_arg" = "--pkg" ]; then update_termux; install_pkg; fi
+    if [ "$action_arg" = "--all" ] || [ "$action_arg" = "--npm" ]; then install_npm; fi
+    if [ "$action_arg" = "--all" ] || [ "$action_arg" = "--pip" ]; then install_pip; fi
     
     print_summary_report; exit 0
 fi
@@ -59,7 +63,6 @@ fi
 # --- Interactive Mode ---
 clear; handle_updates "auto"; profile_selection_menu
 pre_flight_checks
-setup_logging
 while true; do
     main_menu
     case $main_choice in
@@ -67,7 +70,7 @@ while true; do
         2) update_termux; install_pkg;;
         3) install_npm;;
         4) install_pip;;
-        5) profile_selection_menu; setup_logging; continue;;
+        5) profile_selection_menu; continue;;
         6) echo -e "\nExiting Ashno."; exit 0;;
         *) echo -e "\n${RED}Invalid choice.${NC}"; sleep 1; continue;;
     esac

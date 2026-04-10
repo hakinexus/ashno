@@ -4,7 +4,7 @@
 # ==============================================================================
 
 build_package_list() {
-    local pkg_type="$1"; local sel_prof_name="$2"; local f_list=""; local f_read=();
+    local pkg_type="$1"; local sel_prof_name="$2"; local f_read=();
     # Logic to handle cumulative profiles (1...N)
     if [[ "$sel_prof_name" =~ ^([0-9]+)_.+ ]]; then 
         local p_lvl="${BASH_REMATCH[1]}"
@@ -28,7 +28,7 @@ build_package_list() {
 
 pre_flight_checks() { 
     print_banner "Performing System Checks"
-    if ! ping -c 1 8.8.8.8 &>/dev/null; then print_formatting error "Internet: Disconnected"; exit 1; fi
+    if ! ping -c 1 -W 5 8.8.8.8 &>/dev/null; then print_formatting error "Internet: Disconnected"; exit 1; fi
     print_formatting success "Internet Connection: OK"
     
     # Check Termux Storage Access
@@ -38,16 +38,20 @@ pre_flight_checks() {
     fi
 }
 
-update_termux() { 
+update_termux() {
     print_banner "Updating Termux Base System"
-    # Running pkg update in background
-    (pkg update -y -o Dpkg::Options::="--force-confnew" && pkg upgrade -y -o Dpkg::Options::="--force-confnew") &>/dev/null & 
+    (pkg update -y -o Dpkg::Options::="--force-confnew" && pkg upgrade -y -o Dpkg::Options::="--force-confnew") &>/dev/null &
     local pid=$!
     echo -en "  Updating sources and packages... "
     spinner $pid
     wait $pid
+    local exit_code=$?
     printf "\r\033[K"
-    print_formatting success "Base system update complete."
+    if [ "$exit_code" -eq 0 ]; then
+        print_formatting success "Base system update complete."
+    else
+        print_formatting warn "Base system update completed with errors."
+    fi
 }
 
 check_pkg_installed() {
@@ -64,7 +68,6 @@ _process_package_list() {
     local pending_list=()
 
     for pkg_name in "${package_list[@]}"; do
-        # Trim whitespace
         pkg_name=$(echo "$pkg_name" | xargs)
         [ -z "$pkg_name" ] && continue
 
@@ -80,10 +83,19 @@ _process_package_list() {
         return 0
     fi
 
+    # Build timeout prefixes — gracefully degrade if timeout is unavailable
+    local batch_timeout="" single_timeout="" has_timeout=false
+    if command -v timeout &>/dev/null; then
+        has_timeout=true
+        batch_timeout="timeout $INSTALL_TIMEOUT_BATCH"
+        single_timeout="timeout $INSTALL_TIMEOUT_SINGLE"
+    fi
+
+    # --- Batch Install Attempt ---
     local batch_error_log; batch_error_log=$(mktemp)
     echo -en "  Installing ${#pending_list[@]} packages (Batch Mode)... "
-    
-    ($INSTALL_CMD "${pending_list[@]}") >/dev/null 2>"$batch_error_log" & 
+
+    ($batch_timeout $INSTALL_CMD "${pending_list[@]}") >/dev/null 2>"$batch_error_log" &
     local pid=$!
     spinner $pid
     wait $pid
@@ -99,14 +111,19 @@ _process_package_list() {
         return 0
     fi
 
-    print_formatting warn "Batch installation failed. Falling back to sequential mode..."
+    if [ "$has_timeout" = true ] && [ "$batch_exit_code" -eq 124 ]; then
+        print_formatting warn "Batch installation timed out ($((INSTALL_TIMEOUT_BATCH / 60))m limit). Falling back to sequential mode..."
+    else
+        print_formatting warn "Batch installation failed. Falling back to sequential mode..."
+    fi
     rm -f "$batch_error_log"
 
+    # --- Sequential Fallback ---
     for pkg_name in "${pending_list[@]}"; do
         local error_log; error_log=$(mktemp)
         echo -en "  Installing ${BOLD}${pkg_name}${NC}... "
-        
-        ($INSTALL_CMD "$pkg_name") >/dev/null 2>"$error_log" & 
+
+        ($single_timeout $INSTALL_CMD "$pkg_name") >/dev/null 2>"$error_log" &
         local pid=$!
         spinner $pid
         wait $pid
@@ -116,6 +133,9 @@ _process_package_list() {
         if [ "$exit_code" -eq 0 ]; then
             print_formatting success " ${pkg_name}"
             SUCCESS_LIST+=("$pkg_name")
+        elif [ "$has_timeout" = true ] && [ "$exit_code" -eq 124 ]; then
+            print_formatting error " ${pkg_name} (timed out — $((INSTALL_TIMEOUT_SINGLE / 60))m limit)"
+            FAILURE_LIST+=("$pkg_name")
         else
             print_formatting error " ${pkg_name}"
             FAILURE_LIST+=("$pkg_name")
@@ -151,8 +171,14 @@ install_pip() {
         pkg install -y python &>/dev/null
     fi
     echo -en "  Upgrading PIP core... "
-    (pip install --upgrade pip setuptools wheel) &>/dev/null & spinner $!; wait $!
+    (pip install --upgrade pip setuptools wheel) &>/dev/null &
+    local pip_pid=$!
+    spinner $pip_pid; wait $pip_pid
+    local pip_exit=$?
     printf "\r\033[K"
+    if [ "$pip_exit" -ne 0 ]; then
+        print_formatting warn "PIP core upgrade failed. Continuing with existing version."
+    fi
     
     local package_list; package_list=$(build_package_list "pip" "$SELECTED_PROFILE")
     if [ -z "$package_list" ]; then echo "No PIP packages found in this profile."; return; fi

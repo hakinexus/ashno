@@ -70,7 +70,7 @@ print_summary_report() {
 
 main_menu() {
     clear; print_banner "Main Menu"
-    
+
     if command -v gum &>/dev/null; then
         gum style --foreground 250 --italic "  Profile: ${SELECTED_PROFILE}"
         echo ""
@@ -81,8 +81,9 @@ main_menu() {
             "Install PKG Packages")              main_choice=2 ;;
             "Install NPM Packages")              main_choice=3 ;;
             "Install PIP Packages")              main_choice=4 ;;
-            "Change Profile")                  main_choice=5 ;;
+            "Change Profile")                    main_choice=5 ;;
             "Exit Ashno")                        main_choice=6 ;;
+            *)                                   main_choice=6 ;;
         esac
     else
         echo -e "  ${BOLD}Active Profile:${NC} ${YELLOW}${SELECTED_PROFILE}${NC}\n"
@@ -92,68 +93,70 @@ main_menu() {
         echo -e "  ${CYAN}4)${NC}  Install ${BOLD}PIP${NC} Packages"
         echo; echo -e "  ${CYAN}5)${NC}  Change Profile"
         echo -e "  ${CYAN}6)${NC}  Exit Ashno"
-        print_prompt; read main_choice
+        print_prompt; read -r main_choice
     fi
 }
 
 profile_selection_menu() {
-    clear; print_banner "Choose Installation Profile"
-    local profiles=(); while IFS= read -r line; do profiles+=("$line"); done < <(find "$PROFILES_DIR" -maxdepth 1 -mindepth 1 -type d | sort)
-    
-    if [ ${#profiles[@]} -eq 0 ]; then echo -e "${RED}Error: No profiles found in '${PROFILES_DIR}/'.${NC}"; exit 1; fi
-    
-    echo -e "Welcome to Ashno. Please select a profile to begin.\n"
-    local count=1
-    
-    if command -v gum &>/dev/null; then
-        local gum_opts=()
-        for profile_path in "${profiles[@]}"; do
-            local profile_name; profile_name=$(basename "$profile_path")
-            case "$profile_name" in
-                "1_essentials") gum_opts+=("Essentials") ;;
-                "2_extended")   gum_opts+=("Extended (Recommended)") ;;
-                "3_complete")   gum_opts+=("Complete") ;;
-                *)              gum_opts+=("$profile_name") ;;
-            esac
-        done
-        gum_opts+=("Exit Ashno")
-        
-        local gum_choice
-        gum_choice=$(gum choose --cursor "➜ " --cursor.foreground="212" --item.foreground="250" --selected.foreground="212" --selected.bold "${gum_opts[@]}")
-        
-        if [ "$gum_choice" == "Exit Ashno" ]; then
-            echo -e "\nExiting Ashno."; exit 0
-        fi
+    while true; do
+        clear; print_banner "Choose Installation Profile"
+        local profiles=(); while IFS= read -r line; do profiles+=("$line"); done < <(find "$PROFILES_DIR" -maxdepth 1 -mindepth 1 -type d | sort)
 
-        # Find matching profile index
-        for i in "${!gum_opts[@]}"; do
-            if [ "${gum_opts[$i]}" == "$gum_choice" ]; then
-                SELECTED_PROFILE=$(basename "${profiles[$i]}")
-                break
+        if [ ${#profiles[@]} -eq 0 ]; then echo -e "${RED}Error: No profiles found in '${PROFILES_DIR}/'.${NC}"; exit 1; fi
+
+        echo -e "Welcome to Ashno. Please select a profile to begin.\n"
+        local count=1
+
+        if command -v gum &>/dev/null; then
+            local gum_opts=()
+            for profile_path in "${profiles[@]}"; do
+                local profile_name; profile_name=$(basename "$profile_path")
+                case "$profile_name" in
+                    "1_essentials") gum_opts+=("Essentials") ;;
+                    "2_extended")   gum_opts+=("Extended (Recommended)") ;;
+                    "3_complete")   gum_opts+=("Complete") ;;
+                    *)              gum_opts+=("$profile_name") ;;
+                esac
+            done
+            gum_opts+=("Exit Ashno")
+
+            local gum_choice
+            gum_choice=$(gum choose --cursor "➜ " --cursor.foreground="212" --item.foreground="250" --selected.foreground="212" --selected.bold "${gum_opts[@]}")
+
+            if [ -z "$gum_choice" ] || [ "$gum_choice" = "Exit Ashno" ]; then
+                echo -e "\nExiting Ashno."; exit 0
             fi
-        done
-    else
-        for profile_path in "${profiles[@]}"; do
-            local profile_name; profile_name=$(basename "$profile_path")
-            local option_line
-            case "$profile_name" in
-                "1_essentials") option_line=$(printf "  ${CYAN}%2d)${NC} ${BOLD}Essentials${NC}" "$count") ;;
-                "2_extended")   option_line=$(printf "  ${CYAN}%2d)${NC} ${BOLD}Extended${NC} ${GREEN}(Recommended)${NC}" "$count") ;;
-                "3_complete")   option_line=$(printf "  ${CYAN}%2d)${NC} ${BOLD}Complete${NC}" "$count") ;;
-                *)              option_line=$(printf "  ${CYAN}%2d)${NC} ${BOLD}%s${NC}" "$count" "$profile_name") ;;
-            esac
-            echo -e "$option_line"
-            count=$((count + 1))
-        done
-        printf "  ${CYAN}%2d)${NC} ${BOLD}%s${NC}\n" "$count" "Exit Ashno"
-        
-        local choice; print_prompt; read choice
-        if [[ "$choice" =~ ^[0-9]+$ ]] && [ "$choice" -ge 1 ] && [ "$choice" -le ${#profiles[@]} ]; then 
-            SELECTED_PROFILE=$(basename "${profiles[$choice-1]}")
-        elif [ "$choice" -eq $count ]; then 
-            echo -e "\nExiting Ashno."; exit 0
-        else 
-            echo -e "\n${RED}Invalid selection.${NC}"; sleep 1; profile_selection_menu
+
+            for i in "${!gum_opts[@]}"; do
+                if [ "${gum_opts[$i]}" = "$gum_choice" ]; then
+                    SELECTED_PROFILE=$(basename "${profiles[$i]}")
+                    return 0
+                fi
+            done
+        else
+            for profile_path in "${profiles[@]}"; do
+                local profile_name; profile_name=$(basename "$profile_path")
+                local option_line
+                case "$profile_name" in
+                    "1_essentials") option_line=$(printf "  ${CYAN}%2d)${NC} ${BOLD}Essentials${NC}" "$count") ;;
+                    "2_extended")   option_line=$(printf "  ${CYAN}%2d)${NC} ${BOLD}Extended${NC} ${GREEN}(Recommended)${NC}" "$count") ;;
+                    "3_complete")   option_line=$(printf "  ${CYAN}%2d)${NC} ${BOLD}Complete${NC}" "$count") ;;
+                    *)              option_line=$(printf "  ${CYAN}%2d)${NC} ${BOLD}%s${NC}" "$count" "$profile_name") ;;
+                esac
+                echo -e "$option_line"
+                count=$((count + 1))
+            done
+            printf "  ${CYAN}%2d)${NC} ${BOLD}%s${NC}\n" "$count" "Exit Ashno"
+
+            local choice; print_prompt; read -r choice
+            if [[ "$choice" =~ ^[0-9]+$ ]] && [ "$choice" -ge 1 ] && [ "$choice" -le ${#profiles[@]} ]; then
+                SELECTED_PROFILE=$(basename "${profiles[$choice-1]}")
+                return 0
+            elif [[ "$choice" =~ ^[0-9]+$ ]] && [ "$choice" -eq "$count" ]; then
+                echo -e "\nExiting Ashno."; exit 0
+            else
+                echo -e "\n${RED}Invalid selection.${NC}"; sleep 1
+            fi
         fi
-    fi
+    done
 }

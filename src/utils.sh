@@ -10,7 +10,7 @@ bootstrap_core() {
     if ! command -v tput &>/dev/null; then missing_deps=1; fi
     if ! command -v gum &>/dev/null; then missing_deps=1; fi
     
-    if [ $missing_deps -eq 1 ]; then
+    if [ "$missing_deps" -eq 1 ]; then
         echo "Initializing core dependencies (including Gum) for optimal UI..."
         # Silently update and install required packages
         pkg update -y -o Dpkg::Options::="--force-confnew" &>/dev/null
@@ -85,10 +85,6 @@ print_formatting() {
 }
 
 print_prompt() { echo -en "\n${CYAN}>${NC}${BOLD} Select an option:${NC} "; }
-
-setup_logging() {
-    : # Error logging removed per user request
-}
 
 spinner() {
     cursor_hide

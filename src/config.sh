@@ -7,8 +7,10 @@
 # It is defined in the main entrypoint: readonly SCRIPT_DIR=$(dirname "$SCRIPT_PATH")
 
 readonly PROFILES_DIR="$SCRIPT_DIR/profiles"
-readonly LOG_DIR="$SCRIPT_DIR/logs"
-LOG_FILE="" 
+
+# --- Install Timeouts (seconds) ---
+readonly INSTALL_TIMEOUT_SINGLE=300
+readonly INSTALL_TIMEOUT_BATCH=600
 
 # --- ANSI Color Codes ---
 RED='\033[0;31m'; GREEN='\033[0;32m'; YELLOW='\033[1;33m';
